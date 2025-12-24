@@ -1,0 +1,563 @@
+# OpenAPI Specification: Physical AI & Humanoid Robotics Book Content API
+
+openapi: 3.0.3
+info:
+  title: Physical AI & Humanoid Robotics Book Content API
+  description: API for managing content in the Physical AI & Humanoid Robotics book
+  version: 1.0.0
+  contact:
+    name: Book Development Team
+    email: content@physical-ai-book.example.com
+
+servers:
+  - url: https://api.physical-ai-book.example.com/v1
+    description: Production server
+  - url: https://staging-api.physical-ai-book.example.com/v1
+    description: Staging server
+
+paths:
+  /books/{bookId}:
+    get:
+      summary: Get book details
+      description: Retrieve details about the Physical AI & Humanoid Robotics book
+      parameters:
+        - name: bookId
+          in: path
+          required: true
+          description: Unique identifier for the book
+          schema:
+            type: string
+            example: "physical-ai-humanoid-robotics"
+      responses:
+        '200':
+          description: Book details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'
+        '404':
+          description: Book not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /books/{bookId}/modules:
+    get:
+      summary: Get all modules in the book
+      description: Retrieve all modules that compose the book
+      parameters:
+        - name: bookId
+          in: path
+          required: true
+          description: Unique identifier for the book
+          schema:
+            type: string
+            example: "physical-ai-humanoid-robotics"
+      responses:
+        '200':
+          description: List of modules retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  modules:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Module'
+        '404':
+          description: Book not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /books/{bookId}/modules/{moduleId}:
+    get:
+      summary: Get a specific module
+      description: Retrieve details about a specific module in the book
+      parameters:
+        - name: bookId
+          in: path
+          required: true
+          description: Unique identifier for the book
+          schema:
+            type: string
+            example: "physical-ai-humanoid-robotics"
+        - name: moduleId
+          in: path
+          required: true
+          description: Unique identifier for the module
+          schema:
+            type: string
+            example: "module-1-robotic-nervous-system"
+      responses:
+        '200':
+          description: Module details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Module'
+        '404':
+          description: Book or module not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /books/{bookId}/modules/{moduleId}/chapters:
+    get:
+      summary: Get all chapters in a module
+      description: Retrieve all chapters that compose a specific module
+      parameters:
+        - name: bookId
+          in: path
+          required: true
+          description: Unique identifier for the book
+          schema:
+            type: string
+            example: "physical-ai-humanoid-robotics"
+        - name: moduleId
+          in: path
+          required: true
+          description: Unique identifier for the module
+          schema:
+            type: string
+            example: "module-1-robotic-nervous-system"
+      responses:
+        '200':
+          description: List of chapters retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  chapters:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Chapter'
+        '404':
+          description: Book or module not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /books/{bookId}/modules/{moduleId}/chapters/{chapterId}:
+    get:
+      summary: Get a specific chapter
+      description: Retrieve details about a specific chapter in the book
+      parameters:
+        - name: bookId
+          in: path
+          required: true
+          description: Unique identifier for the book
+          schema:
+            type: string
+            example: "physical-ai-humanoid-robotics"
+        - name: moduleId
+          in: path
+          required: true
+          description: Unique identifier for the module
+          schema:
+            type: string
+            example: "module-1-robotic-nervous-system"
+        - name: chapterId
+          in: path
+          required: true
+          description: Unique identifier for the chapter
+          schema:
+            type: string
+            example: "chapter-1-1-introduction-ros2"
+      responses:
+        '200':
+          description: Chapter details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Chapter'
+        '404':
+          description: Book, module, or chapter not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    Book:
+      type: object
+      required:
+        - id
+        - title
+        - description
+        - version
+        - created_date
+        - last_updated
+        - word_count
+        - modules
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the book
+          example: "physical-ai-humanoid-robotics"
+        title:
+          type: string
+          description: Title of the book
+          example: "Physical AI & Humanoid Robotics — Embodied Intelligence in the Real World"
+        description:
+          type: string
+          description: Brief description of the book's purpose
+          example: "A comprehensive guide to Physical AI and Humanoid Robotics"
+        version:
+          type: string
+          description: Version identifier following semantic versioning
+          example: "1.0.0"
+        authors:
+          type: array
+          items:
+            type: string
+          description: List of book authors/contributors
+          example: ["Author One", "Author Two"]
+        created_date:
+          type: string
+          format: date
+          description: Date the book was created
+          example: "2025-01-15"
+        last_updated:
+          type: string
+          format: date
+          description: Date of last content update
+          example: "2025-01-20"
+        word_count:
+          type: integer
+          description: Total word count across all chapters
+          example: 8500
+        modules:
+          type: array
+          items:
+            $ref: '#/components/schemas/Module'
+          description: List of modules that compose the book
+
+    Module:
+      type: object
+      required:
+        - id
+        - title
+        - description
+        - goal
+        - outcomes
+        - scope
+        - non_goals
+        - deliverables
+        - chapters
+        - order
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the module
+          example: "module-1-robotic-nervous-system"
+        title:
+          type: string
+          description: Display title of the module
+          example: "The Robotic Nervous System (ROS 2)"
+        description:
+          type: string
+          description: Brief description of the module content
+          example: "Introduction to ROS 2 as the foundational communication framework for humanoid robots"
+        goal:
+          type: string
+          description: The main goal of the module
+          example: "To establish a comprehensive understanding of ROS 2 as the foundational communication framework for humanoid robots"
+        outcomes:
+          type: array
+          items:
+            type: string
+          description: Learning outcomes for the module
+          example: [
+            "Students will be able to design and implement ROS 2 nodes for humanoid robot control",
+            "Students will understand and apply URDF for modeling humanoid robot kinematics"
+          ]
+        scope:
+          type: string
+          description: What is included in the module
+          example: "ROS 2 architecture and communication patterns, URDF modeling for humanoid robots specifically, Python rclpy implementation"
+        non_goals:
+          type: string
+          description: What is excluded from the module
+          example: "Deep dive into specific hardware drivers, Advanced control theory implementation"
+        deliverables:
+          type: array
+          items:
+            type: string
+          description: Tangible outputs of the module
+          example: [
+            "ROS 2 package for humanoid robot control",
+            "URDF model of a humanoid robot"
+          ]
+        chapters:
+          type: array
+          items:
+            $ref: '#/components/schemas/Chapter'
+          description: List of chapters in the module
+        order:
+          type: integer
+          description: Sequential order of the module in the book
+          example: 1
+
+    Chapter:
+      type: object
+      required:
+        - id
+        - title
+        - goal
+        - learning_objectives
+        - overview
+        - key_concepts
+        - step_by_step_breakdown
+        - references
+        - review_questions
+        - practical_exercises
+        - module_id
+        - order
+        - word_count
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the chapter
+          example: "chapter-1-1-introduction-ros2"
+        title:
+          type: string
+          description: Display title of the chapter
+          example: "Introduction to ROS 2 Architecture"
+        goal:
+          type: string
+          description: The main goal of the chapter
+          example: "Understand the fundamental architecture of ROS 2 and its components"
+        learning_objectives:
+          type: array
+          items:
+            type: string
+          description: Specific learning objectives
+          example: [
+            "Understand ROS 2 nodes, topics, services, and actions",
+            "Learn to create basic ROS 2 publisher and subscriber nodes"
+          ]
+        overview:
+          type: string
+          description: Brief overview of chapter content
+          example: "This chapter introduces the fundamental concepts of ROS 2 architecture including nodes, topics, services, and actions."
+        key_concepts:
+          type: array
+          items:
+            type: string
+          description: Main theoretical concepts covered
+          example: [
+            "Nodes and processes",
+            "Topics and message passing",
+            "Services and request/response patterns",
+            "Actions for long-running tasks"
+          ]
+        step_by_step_breakdown:
+          type: string
+          description: Detailed implementation steps
+          example: "1. Install ROS 2 distribution 2. Create a workspace 3. Create a package 4. Implement a publisher node 5. Implement a subscriber node"
+        code_examples:
+          type: array
+          items:
+            $ref: '#/components/schemas/CodeExample'
+          description: Practical code examples in the chapter
+        diagrams:
+          type: array
+          items:
+            $ref: '#/components/schemas/Diagram'
+          description: Visual diagrams and illustrations
+        case_study:
+          type: string
+          description: Real-world application example
+          example: "Case study of ROS 2 implementation in a humanoid robot navigation system"
+        references:
+          type: array
+          items:
+            $ref: '#/components/schemas/Reference'
+          description: Academic and practical references
+        review_questions:
+          type: array
+          items:
+            type: string
+          description: Questions to test understanding
+          example: [
+            "What is the difference between a topic and a service in ROS 2?",
+            "Explain the publisher-subscriber pattern in ROS 2."
+          ]
+        practical_exercises:
+          type: array
+          items:
+            type: string
+          description: Hands-on exercises for students
+          example: [
+            "Create a simple ROS 2 publisher node that publishes a counter",
+            "Implement a subscriber that receives and logs the counter values"
+          ]
+        module_id:
+          type: string
+          description: Reference to parent module
+          example: "module-1-robotic-nervous-system"
+        order:
+          type: integer
+          description: Sequential order of the chapter in the module
+          example: 1
+        word_count:
+          type: integer
+          description: Word count for the chapter
+          example: 950
+
+    CodeExample:
+      type: object
+      required:
+        - id
+        - language
+        - code
+        - description
+        - chapter_id
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the code example
+          example: "code-example-1-1-publisher-node"
+        language:
+          type: string
+          description: Programming language
+          example: "python"
+        code:
+          type: string
+          description: The actual code content
+          example: "import rclpy\nfrom rclpy.node import Node\n\nclass MinimalPublisher(Node):\n    def __init__(self):\n        super().__init__('minimal_publisher')\n        self.publisher = self.create_publisher(String, 'topic', 10)\n        timer_period = 0.5\n        self.timer = self.create_timer(timer_period, self.timer_callback)\n\n    def timer_callback(self):\n        msg = String()\n        msg.data = 'Hello World'\n        self.publisher.publish(msg)"
+        description:
+          type: string
+          description: Explanation of what the code does
+          example: "A simple ROS 2 publisher node that publishes 'Hello World' messages"
+        file_path:
+          type: string
+          description: Path to the actual file if external
+          example: "examples/chapter-1-1/publisher.py"
+        chapter_id:
+          type: string
+          description: Reference to parent chapter
+          example: "chapter-1-1-introduction-ros2"
+
+    Diagram:
+      type: object
+      required:
+        - id
+        - title
+        - description
+        - file_path
+        - alt_text
+        - chapter_id
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the diagram
+          example: "diagram-1-1-ros2-architecture"
+        title:
+          type: string
+          description: Title of the diagram
+          example: "ROS 2 Architecture Overview"
+        description:
+          type: string
+          description: Description of what the diagram illustrates
+          example: "Shows the relationship between nodes, topics, services, and actions in ROS 2"
+        file_path:
+          type: string
+          description: Path to the image file in /static/img/
+          example: "/img/ros2-architecture.svg"
+        alt_text:
+          type: string
+          description: Alternative text for accessibility
+          example: "Diagram showing ROS 2 architecture with nodes, topics, services, and actions"
+        chapter_id:
+          type: string
+          description: Reference to parent chapter
+          example: "chapter-1-1-introduction-ros2"
+
+    Reference:
+      type: object
+      required:
+        - id
+        - title
+        - type
+        - chapter_id
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the reference
+          example: "ref-1-1-ros2-docs"
+        title:
+          type: string
+          description: Title of the referenced work
+          example: "ROS 2 Documentation"
+        url:
+          type: string
+          format: uri
+          description: URL if it's a web reference
+          example: "https://docs.ros.org/"
+        author:
+          type: string
+          description: Author of the reference
+          example: "Open Robotics"
+        publication:
+          type: string
+          description: Publication name or source
+          example: "Official ROS 2 Documentation"
+        year:
+          type: integer
+          description: Year of publication
+          example: 2025
+        type:
+          type: string
+          description: Type of reference
+          enum: [web, academic, documentation]
+          example: "documentation"
+        chapter_id:
+          type: string
+          description: Reference to parent chapter
+          example: "chapter-1-1-introduction-ros2"
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+        - message
+      properties:
+        error:
+          type: string
+          description: Error code
+          example: "NOT_FOUND"
+        message:
+          type: string
+          description: Human-readable error message
+          example: "The requested resource was not found"
+        details:
+          type: object
+          description: Additional error details
+          example: {"resource": "module", "id": "non-existent-module"}
+
+  securitySchemes:
+    apiKey:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: API key for authentication
+
+security:
+  - apiKey: []
+
+tags:
+  - name: Books
+    description: Operations related to book information
+  - name: Modules
+    description: Operations related to book modules
+  - name: Chapters
+    description: Operations related to book chapters

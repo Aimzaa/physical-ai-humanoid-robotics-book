@@ -1,0 +1,43 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir -p specs/002-physical-ai-book)",
+      "Bash(node --version)",
+      "Bash(npm --version)",
+      "Bash(npx docusaurus start)",
+      "Bash(npm install prism-react-renderer)",
+      "Bash(npm start)",
+      "Bash(dir \"node_modules\\prism-react-renderer\")",
+      "Bash(npm install prismjs)",
+      "Bash(npm run build)",
+      "Bash(powershell \"Stop-Process -Id 46148 -Force\")",
+      "Bash(python main.py)",
+      "Bash(python upload_embeddings.py:*)",
+      "Bash(powershell \"Get-Content C:\\\\Users\\\\kkt\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\E--code-Hackathon-Book-humanoid-robotics-Book\\\\tasks\\\\ba17abc.output; Get-Content C:\\\\Users\\\\kkt\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\E--code-Hackathon-Book-humanoid-robotics-Book\\\\tasks\\\\be1be5c.output\")"
+    ]
+  },
+  "allowedMcpServers": [
+    {
+      "serverName": "context7"
+    },
+    {
+      "serverName": "github"
+    }
+  ],
+  "pluginConfigs": {
+    "context7@anthropic-tools": {
+      "mcpServers": {
+        "context7": {
+          "apiKey": "${CONTEXT7_API_KEY}"
+        }
+      }
+    },
+    "github@anthropic-tools": {
+      "mcpServers": {
+        "github": {
+          "token": "${GITHUB_TOKEN}"
+        }
+      }
+    }
+  }
+}
