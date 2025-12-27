@@ -1,0 +1,143 @@
+.container {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: var(--ifm-font-color-base);
+}
+
+.subtitle {
+  color: var(--ifm-color-emphasis-600);
+  margin-bottom: 2rem;
+}
+
+.loading {
+  text-align: center;
+  padding: 3rem;
+  color: var(--ifm-color-emphasis-600);
+}
+
+.error {
+  text-align: center;
+  padding: 3rem;
+  color: var(--ifm-color-danger);
+}
+
+.message {
+  padding: 0.75rem 1rem;
+  border-radius: var(--ifm-global-radius);
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+}
+
+.success {
+  background-color: var(--ifm-color-success-lightest);
+  border: 1px solid var(--ifm-color-success-light);
+  color: var(--ifm-color-success);
+}
+
+.error {
+  background-color: var(--ifm-color-danger-lightest);
+  border: 1px solid var(--ifm-color-danger-light);
+  color: var(--ifm-color-danger);
+}
+
+.section {
+  margin-bottom: 2.5rem;
+}
+
+.sectionTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--ifm-font-color-base);
+}
+
+.sectionDesc {
+  color: var(--ifm-color-emphasis-600);
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+}
+
+.radioGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.optionButton {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25rem;
+  padding: 1rem 1.25rem;
+  border: 2px solid var(--ifm-color-emphasis-300);
+  border-radius: var(--ifm-global-radius);
+  background-color: var(--ifm-background-surface-color);
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s;
+}
+
+.optionButton:hover {
+  border-color: var(--ifm-color-primary);
+  background-color: var(--ifm-color-primary-lightest);
+}
+
+.optionButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.selected {
+  border-color: var(--ifm-color-primary);
+  background-color: var(--ifm-color-primary-lightest);
+}
+
+.optionTitle {
+  font-weight: 600;
+  color: var(--ifm-font-color-base);
+  font-size: 1rem;
+}
+
+.optionDesc {
+  font-size: 0.85rem;
+  color: var(--ifm-color-emphasis-600);
+}
+
+.infoBox {
+  background-color: var(--ifm-color-info-lightest);
+  border: 1px solid var(--ifm-color-info-light);
+  border-radius: var(--ifm-global-radius);
+  padding: 1.5rem;
+  margin-top: 2rem;
+}
+
+.infoBox h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  color: var(--ifm-color-info);
+}
+
+.infoBox p {
+  font-size: 0.9rem;
+  color: var(--ifm-color-emphasis-700);
+  margin-bottom: 0.75rem;
+}
+
+.infoBox ul {
+  margin: 0;
+  padding-left: 1.25rem;
+  font-size: 0.9rem;
+  color: var(--ifm-color-emphasis-700);
+}
+
+.infoBox li {
+  margin-bottom: 0.25rem;
+}

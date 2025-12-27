@@ -1,0 +1,238 @@
+# Profile & Personalization API Contract
+
+openapi: 3.0.3
+info:
+  title: Book Profile & Personalization API
+  description: Profile management and content personalization endpoints
+  version: 1.0.0
+
+servers:
+  - url: https://api.book-domain.com
+    description: Production
+  - url: http://localhost:8000
+    description: Development
+
+paths:
+  /api/profile:
+    get:
+      summary: Get user profile
+      tags: [Profile]
+      security:
+        - CookieAuth: []
+      responses:
+        '200':
+          description: Profile retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileResponse'
+
+    put:
+      summary: Update user profile
+      tags: [Profile]
+      security:
+        - CookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProfileUpdateRequest'
+      responses:
+        '200':
+          description: Profile updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileResponse'
+        '400':
+          description: Validation error
+
+  /api/personalize/{chapter_id}:
+    post:
+      summary: Personalize chapter content
+      tags: [Personalization]
+      security:
+        - CookieAuth: []
+      parameters:
+        - name: chapter_id
+          in: path
+          required: true
+          schema:
+            type: string
+            example: "chapter-1-robotics-intro"
+      responses:
+        '200':
+          description: Content personalized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PersonalizationResponse'
+        '401':
+          description: Not authenticated
+
+  /api/chat:
+    post:
+      summary: Chat with RAG assistant (with user context)
+      tags: [Chatbot]
+      security:
+        - CookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatRequest'
+      responses:
+        '200':
+          description: Chat response generated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatResponse'
+        '400':
+          description: Invalid request
+        '500':
+          description: Service error
+
+components:
+  securitySchemes:
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: book-auth_session-token
+
+  schemas:
+    ProfileResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        user:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            email:
+              type: string
+              format: email
+            created_at:
+              type: string
+              format: date-time
+        profile:
+          $ref: '#/components/schemas/ProfileData'
+
+    ProfileUpdateRequest:
+      type: object
+      properties:
+        software_level:
+          type: string
+          enum: [Beginner, Intermediate, Advanced]
+        hardware_experience:
+          type: string
+          enum: [None, Basic, Hands-on]
+        learning_depth:
+          type: string
+          enum: [Conceptual, Practical, Both]
+        display_name:
+          type: string
+          maxLength: 100
+        bio:
+          type: string
+          maxLength: 500
+      additionalProperties: false
+
+    ProfileData:
+      type: object
+      properties:
+        software_level:
+          type: string
+          enum: [Beginner, Intermediate, Advanced]
+        hardware_experience:
+          type: string
+          enum: [None, Basic, Hands-on]
+        learning_depth:
+          type: string
+          enum: [Conceptual, Practical, Both]
+        personalization_enabled:
+          type: boolean
+        favorite_chapters:
+          type: array
+          items:
+            type: string
+        last_personalized_chapter:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+          nullable: true
+
+    PersonalizationResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        chapter_id:
+          type: string
+        personalized_content:
+          type: string
+          description: HTML/Markdown content with personalization applied
+        user_level:
+          type: string
+        applied_sections:
+          type: array
+          items:
+            type: string
+
+    ChatRequest:
+      type: object
+      required:
+        - query
+      properties:
+        query:
+          type: string
+          example: "How does ROS 2 navigation work?"
+        model:
+          type: string
+          default: "openai/gpt-3.5-turbo"
+        conversation_history:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChatMessage'
+
+    ChatMessage:
+      type: object
+      properties:
+        role:
+          type: string
+          enum: [user, assistant]
+        content:
+          type: string
+
+    ChatResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        response:
+          type: string
+        sources:
+          type: array
+          items:
+            type: string
+        tokens_used:
+          type: integer
+        user_context_applied:
+          type: object
+          properties:
+            software_level:
+              type: string
+            hardware_experience:
+              type: string
+            learning_depth:
+              type: string

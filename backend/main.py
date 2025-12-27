@@ -5,8 +5,10 @@ from typing import List, Optional
 import os
 import logging
 from contextlib import asynccontextmanager
-from dotenv import load_dotenv  
-load_dotenv()  # Load environment variables from .env file
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Import required libraries for RAG
 try:
@@ -35,6 +37,16 @@ USE_QWEN_EMBEDDINGS = False  # Use local embeddings (no API key needed)
 qdrant_client = None
 embedding_model = None
 
+# ============================================================================
+# AUTHENTICATION IMPORTS
+# ============================================================================
+from src.db import init_db
+from src.middleware.cors import configure_cors
+from src.api.auth import router as auth_router
+from src.api.profile import router as profile_router
+from src.api.personalization import router as personalization_router
+from src.api.chat import router as chat_router
+
 class Document(BaseModel):
     content: str
     source: str
@@ -45,12 +57,12 @@ class QueryRequest(BaseModel):
     top_k: int = 5
     user_context: Optional[str] = None
 
-class ChatRequest(BaseModel):
+class OldChatRequest(BaseModel):
     query: str
     user_context: Optional[str] = None
     model: str = "openai/gpt-3.5-turbo"
 
-class ChatResponse(BaseModel):
+class OldChatResponse(BaseModel):
     response: str
     sources: List[str]
     tokens_used: int
@@ -70,9 +82,8 @@ def get_embedding_vector(text: str) -> list:
         }
 
         # Prepare the request for Qwen embeddings
-        # Using DashScope embedding API
         payload = {
-            "model": "text-embedding-v2",  # or text-embedding-v1 depending on your preference
+            "model": "text-embedding-v2",
             "input": {
                 "texts": [text]
             }
@@ -97,6 +108,15 @@ def get_embedding_vector(text: str) -> list:
 async def lifespan(app: FastAPI):
     global qdrant_client, embedding_model
 
+    # Initialize database for auth
+    logger.info("Initializing authentication database...")
+    try:
+        init_db()
+        logger.info("Auth database initialized successfully")
+    except Exception as e:
+        logger.warning(f"Could not initialize auth database: {e}")
+
+    # Initialize Qdrant for RAG
     if QDRANT_API_KEY:
         qdrant_client = QdrantClient(
             url=QDRANT_URL,
@@ -113,44 +133,63 @@ async def lifespan(app: FastAPI):
     # Set vector size based on embedding type
     vector_size = 1536 if USE_QWEN_EMBEDDINGS else 384
 
-    # Delete the old collection if it exists to ensure correct dimensions
+    # Check if collection exists, create if not
     try:
-        qdrant_client.delete_collection("book_content")
-        logger.info("Deleted existing Qdrant collection 'book_content'")
-    except Exception as e:
-        logger.info("Collection 'book_content' does not exist, will create a new one")
+        collections = qdrant_client.get_collections()
+        collection_names = [c.name for c in collections.collections]
 
-    # Create a new collection with correct dimensions for embedding model
-    qdrant_client.create_collection(
-        collection_name="book_content",
-        vectors_config=models.VectorParams(size=vector_size, distance=models.Distance.COSINE)
-    )
-    logger.info(f"Created new Qdrant collection 'book_content' with {vector_size} dimensions")
+        if "book_content" in collection_names:
+            logger.info("Qdrant collection 'book_content' already exists, using existing collection")
+        else:
+            # Create a new collection with correct dimensions for embedding model
+            qdrant_client.create_collection(
+                collection_name="book_content",
+                vectors_config=models.VectorParams(size=vector_size, distance=models.Distance.COSINE)
+            )
+            logger.info(f"Created new Qdrant collection 'book_content' with {vector_size} dimensions")
+    except Exception as e:
+        logger.warning(f"Could not check/create Qdrant collection: {e}")
 
     yield
 
 app = FastAPI(
-    title="Physical AI & Humanoid Robotics Book RAG API",
-    description="API for Retrieval-Augmented Generation for the Physical AI & Humanoid Robotics Book",
+    title="Physical AI & Humanoid Robotics Book API",
+    description="API for the Physical AI & Humanoid Robotics Book with Authentication and Personalization",
     version="1.0.0",
     lifespan=lifespan
 )
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# Configure CORS
+configure_cors(app)
+
+# ============================================================================
+# AUTHENTICATION ROUTES
+# ============================================================================
+app.include_router(auth_router)
+app.include_router(profile_router)
+app.include_router(personalization_router)
+app.include_router(chat_router)
+
+# ============================================================================
+# EXISTING RAG ROUTES (preserved for backward compatibility)
+# ============================================================================
 
 @app.get("/")
 def read_root():
-    return {"message": "Physical AI & Humanoid Robotics Book RAG API", "status": "ready"}
+    return {
+        "message": "Physical AI & Humanoid Robotics Book API",
+        "status": "ready",
+        "version": "1.0.0",
+        "features": ["RAG Chatbot", "User Authentication", "Content Personalization"]
+    }
 
 @app.get("/health")
 def health_check():
-    return {"status": "healthy", "qdrant_connected": True}
+    return {
+        "status": "healthy",
+        "qdrant_connected": True,
+        "auth_enabled": True
+    }
 
 @app.post("/embeddings")
 async def add_embeddings(request: EmbeddingRequest):
@@ -186,7 +225,6 @@ async def search_documents(query: QueryRequest):
     try:
         query_embedding = get_embedding_vector(query.query)
 
-        # Naye Qdrant client ke liye sahi tarika
         search_result = qdrant_client.query_points(
             collection_name="book_content",
             query=query_embedding,
@@ -208,8 +246,8 @@ async def search_documents(query: QueryRequest):
         logger.error(f"Error searching documents: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error searching documents: {str(e)}")
 
-@app.post("/chat", response_model=ChatResponse)
-async def chat_endpoint(request: ChatRequest):
+@app.post("/chat", response_model=OldChatResponse)
+async def chat_endpoint(request: OldChatRequest):
     try:
         if not OPENROUTER_API_KEY:
             raise HTTPException(status_code=500, detail="OPENROUTER_API_KEY not set")
@@ -240,7 +278,7 @@ async def chat_endpoint(request: ChatRequest):
         """
 
         response = openai.chat.completions.create(
-            model=request.model.replace("openai/", ""),  # Remove "openai/" prefix for OpenRouter
+            model=request.model.replace("openai/", ""),
             messages=[
                 {"role": "system", "content": "You are an assistant for the Physical AI & Humanoid Robotics Book. Provide accurate answers based on the book content and cite sources when possible."},
                 {"role": "user", "content": full_context}
@@ -249,7 +287,6 @@ async def chat_endpoint(request: ChatRequest):
             max_tokens=1000
         )
 
-        # Debug: Check if response is a valid object
         if not hasattr(response, 'choices'):
             logger.error(f"OpenRouter returned invalid response: {response}")
             raise HTTPException(status_code=500, detail=f"Invalid response from OpenRouter: {response}")
@@ -259,7 +296,7 @@ async def chat_endpoint(request: ChatRequest):
 
         sources = list(set([result["source"] for result in search_results["results"]]))
 
-        return ChatResponse(
+        return OldChatResponse(
             response=answer,
             sources=sources,
             tokens_used=tokens_used

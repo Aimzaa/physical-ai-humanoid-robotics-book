@@ -52,6 +52,7 @@ const config = {
 
   plugins: [
     './src/plugins/ChatbotPlugin',
+    './src/plugins/AuthPlugin',
   ],
 
   themeConfig:
@@ -75,6 +76,10 @@ const config = {
           {
             href: 'https://github.com/your-org/physical-ai-humanoid-robotics-book',
             label: 'GitHub',
+            position: 'right',
+          },
+          {
+            type: 'custom-authButton',
             position: 'right',
           },
         ],

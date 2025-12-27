@@ -1,0 +1,229 @@
+# Auth API Contract
+
+openapi: 3.0.3
+info:
+  title: Book Auth API
+  description: Authentication endpoints for Personalized Docusaurus Book
+  version: 1.0.0
+
+servers:
+  - url: https://api.book-domain.com
+    description: Production
+  - url: http://localhost:8000
+    description: Development
+
+paths:
+  /auth/signup:
+    post:
+      summary: Create new user account
+      tags: [Authentication]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignupRequest'
+      responses:
+        '201':
+          description: Account created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Email already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/signin:
+    post:
+      summary: Sign in with email/password
+      tags: [Authentication]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SigninRequest'
+      responses:
+        '200':
+          description: Sign in successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+          headers:
+            Set-Cookie:
+              description: HttpOnly session cookie
+              schema:
+                type: string
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/me:
+    get:
+      summary: Get current user profile
+      tags: [Authentication]
+      security:
+        - CookieAuth: []
+      responses:
+        '200':
+          description: User profile retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfileResponse'
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/signout:
+    post:
+      summary: Sign out and invalidate session
+      tags: [Authentication]
+      security:
+        - CookieAuth: []
+      responses:
+        '200':
+          description: Signed out successfully
+        '401':
+          description: Not authenticated
+
+components:
+  securitySchemes:
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: book-auth_session-token
+
+  schemas:
+    SignupRequest:
+      type: object
+      required:
+        - email
+        - password
+        - confirm_password
+        - software_level
+        - hardware_experience
+        - learning_depth
+      properties:
+        email:
+          type: string
+          format: email
+          example: user@example.com
+        password:
+          type: string
+          format: password
+          minLength: 8
+          maxLength: 128
+          example: "securePassword123"
+        confirm_password:
+          type: string
+          format: password
+        software_level:
+          type: string
+          enum: [Beginner, Intermediate, Advanced]
+          example: "Beginner"
+        hardware_experience:
+          type: string
+          enum: [None, Basic, Hands-on]
+          example: "None"
+        learning_depth:
+          type: string
+          enum: [Conceptual, Practical, Both]
+          example: "Both"
+
+    SigninRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          example: user@example.com
+        password:
+          type: string
+          format: password
+
+    AuthResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        user:
+          $ref: '#/components/schemas/UserResponse'
+        message:
+          type: string
+          example: "Account created successfully"
+
+    UserResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        email:
+          type: string
+          format: email
+          example: user@example.com
+        created_at:
+          type: string
+          format: date-time
+
+    UserProfileResponse:
+      type: object
+      properties:
+        user:
+          $ref: '#/components/schemas/UserResponse'
+        profile:
+          $ref: '#/components/schemas/ProfileData'
+
+    ProfileData:
+      type: object
+      properties:
+        software_level:
+          type: string
+          enum: [Beginner, Intermediate, Advanced]
+        hardware_experience:
+          type: string
+          enum: [None, Basic, Hands-on]
+        learning_depth:
+          type: string
+          enum: [Conceptual, Practical, Both]
+        personalization_enabled:
+          type: boolean
+        last_personalized_chapter:
+          type: string
+          nullable: true
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: string
+          example: "Invalid email or password"
+        code:
+          type: string
+          example: "AUTH_INVALID_CREDENTIALS"

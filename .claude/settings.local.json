@@ -13,7 +13,8 @@
       "Bash(powershell \"Stop-Process -Id 46148 -Force\")",
       "Bash(python main.py)",
       "Bash(python upload_embeddings.py:*)",
-      "Bash(powershell \"Get-Content C:\\\\Users\\\\kkt\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\E--code-Hackathon-Book-humanoid-robotics-Book\\\\tasks\\\\ba17abc.output; Get-Content C:\\\\Users\\\\kkt\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\E--code-Hackathon-Book-humanoid-robotics-Book\\\\tasks\\\\be1be5c.output\")"
+      "Bash(powershell \"Get-Content C:\\\\Users\\\\kkt\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\E--code-Hackathon-Book-humanoid-robotics-Book\\\\tasks\\\\ba17abc.output; Get-Content C:\\\\Users\\\\kkt\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\E--code-Hackathon-Book-humanoid-robotics-Book\\\\tasks\\\\be1be5c.output\")",
+      "Bash(python:*)"
     ]
   },
   "allowedMcpServers": [
