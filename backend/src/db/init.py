@@ -81,6 +81,14 @@ def create_tables():
     conn.commit()
     conn.close()
 
+    # Initialize translation tables via migration
+    try:
+        import importlib
+        translation_migration = importlib.import_module('db_migrations.translation_tables')
+        translation_migration.add_translation_tables()
+    except (ImportError, AttributeError) as e:
+        print(f"Warning: Could not initialize translation tables: {e}")
+
     print(f"Database initialized at: {DB_PATH}")
     print("Tables created: user, session, user_profile")
     print("Indexes created: idx_session_user_id, idx_user_email, idx_session_expires")

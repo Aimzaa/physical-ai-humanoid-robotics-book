@@ -1,0 +1,350 @@
+# Frontend Component Contracts: Urdu Translation
+
+**Feature**: Chapter-Level Urdu Translation
+**Date**: 2025-12-28
+**Based On**: [spec.md](../spec.md), [plan.md](../plan.md), [research.md](../research.md)
+
+---
+
+## Component: TranslationToggle
+
+### Location
+`src/components/TranslationToggle/index.js`
+
+### Props Interface
+
+```typescript
+interface TranslationToggleProps {
+  /** Chapter identifier extracted from URL */
+  chapterId: string;
+  /** Chapter title for translation context */
+  chapterTitle: string;
+  /** Callback when language changes */
+  onLanguageChange?: (language: 'en' | 'ur') => void;
+  /** CSS class for custom styling */
+  className?: string;
+}
+```
+
+### State Interface
+
+```typescript
+interface TranslationState {
+  /** Current display language */
+  language: 'en' | 'ur';
+  /** Whether translation is in progress */
+  isTranslating: boolean;
+  /** Translated Urdu content (null when in English) */
+  translatedContent: string | null;
+  /** Original English content (for switching back) */
+  originalContent: string;
+  /** Error message if translation failed */
+  error: string | null;
+  /** Timestamp of last successful translation */
+  lastTranslatedAt: datetime | null;
+  /** Cache expiration timestamp */
+  cacheExpiresAt: datetime | null;
+}
+```
+
+### Component Contract
+
+| State | Type | Initial | Source |
+|-------|------|---------|--------|
+| `language` | 'en' \| 'ur' | 'en' | localStorage or default |
+| `isTranslating` | boolean | false | computed |
+| `translatedContent` | string \| null | null | API response |
+| `error` | string \| null | null | error state |
+| `lastTranslatedAt` | datetime \| null | null | API response |
+
+### Methods
+
+#### `handleTranslate()`
+
+```typescript
+async function handleTranslate(): Promise<void> {
+  // 1. Set isTranslating = true
+  // 2. Extract chapter content from DOM
+  // 3. Call POST /api/translate/{chapterId}
+  // 4. On success: set translatedContent, language = 'ur'
+  // 5. On error: set error message
+  // 6. Set isTranslating = false
+}
+```
+
+#### `handleToggleBack()`
+
+```typescript
+function handleToggleBack(): void {
+  // 1. Set language = 'en'
+  // 2. Set translatedContent = null
+  // 3. Update localStorage preference
+  // 4. Trigger optional onLanguageChange callback
+}
+```
+
+#### `handleClearCache()`
+
+```typescript
+async function handleClearCache(): Promise<void> {
+  // 1. Call DELETE /api/translate/{chapterId}
+  // 2. On success: clear cache state
+  // 3. Show confirmation toast
+}
+```
+
+### Render Contract
+
+```tsx
+<TranslationToggle>
+  <LoadingSpinner isVisible={isTranslating} />
+  <ErrorMessage message={error} onDismiss={() => setError(null)} />
+  {language === 'en' ? (
+    <Button variant="primary" onClick={handleTranslate}>
+      Translate to Urdu
+    </Button>
+  ) : (
+    <>
+      <Button variant="secondary" onClick={handleToggleBack}>
+        Show English
+      </Button>
+      <Button variant="ghost" onClick={handleClearCache}>
+        Clear Cache
+      </Button>
+    </>
+  )}
+  {language === 'ur' && translatedContent && (
+    <UrduContentRenderer content={translatedContent} />
+  )}
+</TranslationToggle>
+```
+
+### CSS Modules
+
+| Class | Element | Description |
+|-------|---------|-------------|
+| `.container` | Wrapper | Main container with styling |
+| `.button` | Button | Primary action button |
+| `.buttonTranslating` | Button | Loading state styling |
+| `.translatedContent` | Content | Urdu rendered content wrapper |
+| `.error` | Error | Error message styling |
+| `.spinner` | Loading | Loading spinner |
+
+---
+
+## Hook: useTranslation
+
+### Location
+`src/hooks/useTranslation.js`
+
+### Interface
+
+```typescript
+function useTranslation(chapterId: string): {
+  language: 'en' | 'ur';
+  isTranslating: boolean;
+  error: string | null;
+  translatedContent: string | null;
+  toggleLanguage: () => Promise<void>;
+  clearCache: () => Promise<void>;
+  hasCachedTranslation: boolean;
+  cacheExpiresAt: datetime | null;
+}
+```
+
+### Implementation Contract
+
+```javascript
+export function useTranslation(chapterId) {
+  const [state, setState] = useState({
+    language: localStorage.getItem(`lang_${chapterId}`) || 'en',
+    isTranslating: false,
+    error: null,
+    translatedContent: null,
+    cacheExpiresAt: null,
+  });
+
+  // Persist language preference
+  useEffect(() => {
+    localStorage.setItem(`lang_${chapterId}`, state.language);
+  }, [state.language, chapterId]);
+
+  return state;
+}
+```
+
+---
+
+## Component: UrduContentRenderer
+
+### Location
+`src/components/UrduContentRenderer/index.js`
+
+### Props Interface
+
+```typescript
+interface UrduContentRendererProps {
+  /** Translated markdown content */
+  content: string;
+  /** Optional: Custom stylesheet */
+  stylesheet?: string;
+  /** Callback when content mounts */
+  onMount?: () => void;
+}
+```
+
+### Rendering Rules
+
+1. **Code Blocks**: Preserve English code, add Urdu comments
+2. **Headings**: Render as Urdu text (Nastaliq)
+3. **Paragraphs**: Standard Urdu text flow
+4. **Lists**: Maintain structure with Urdu bullets
+5. **Links**: Preserve URLs, translate link text
+
+### Markdown to React Parser
+
+```javascript
+// Uses existing markdown parser with custom overrides
+const markdownOptions = {
+  overrides: {
+    code: ({children, className}) => (
+      <code className={className}>{children}</code>
+    ),
+    pre: ({children}) => (
+      <pre className="urdu-code-block">{children}</pre>
+    ),
+  },
+};
+```
+
+---
+
+## API Service: TranslationService
+
+### Location
+`src/services/translationService.js`
+
+### Methods
+
+```typescript
+class TranslationService {
+  static async translate(chapterId: string, content: string): Promise<TranslationResponse> {
+    return fetch(`/api/translate/${chapterId}`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      credentials: 'include',
+      body: JSON.stringify({
+        chapter_id: chapterId,
+        content,
+        chapter_title: extractTitleFromContent(content),
+      }),
+    });
+  }
+
+  static async getStatus(chapterId: string): Promise<TranslationStatusResponse> {
+    return fetch(`/api/translate/${chapterId}/status`, {
+      credentials: 'include',
+    });
+  }
+
+  static async clearCache(chapterId: string): Promise<ClearTranslationResponse> {
+    return fetch(`/api/translate/${chapterId}`, {
+      method: 'DELETE',
+      credentials: 'include',
+    });
+  }
+}
+```
+
+---
+
+## Integration Points
+
+### MDXContent Swizzle
+
+```javascript
+// src/theme/MDXContent/index.js
+import ComponentTypes from '@theme-original/MDXContent/ComponentTypes';
+import TranslationToggle from '@site/src/components/TranslationToggle';
+
+export default {
+  ...ComponentTypes,
+  'TranslationToggle': TranslationToggle,
+};
+```
+
+### Auth Button Integration
+
+The TranslationToggle component integrates with the existing AuthButton navbar component for authentication state:
+
+```javascript
+// useAuth hook (existing)
+function useAuth() {
+  const { user, loading } = useAuthStatus();
+  return { user, isAuthenticated: !!user, loading };
+}
+```
+
+---
+
+## Error Handling
+
+| Error Type | UI Response | User Message |
+|------------|-------------|--------------|
+| Network error | Retry button | "Connection failed. Tap to retry." |
+| 401 Unauthorized | Redirect to signin | (No toggle shown) |
+| 500 Service error | Error message + retry | "Translation unavailable. Try again." |
+| Timeout | Error after 30s | "Translation taking too long. Try again." |
+| Content changed | Force re-translate | "Content updated. Translate again?" |
+
+---
+
+## Accessibility
+
+| Requirement | Implementation |
+|-------------|----------------|
+| Keyboard navigation | Tab focus, Enter to activate |
+| Screen readers | `aria-label` on toggle button |
+| Reduced motion | Respect `prefers-reduced-motion` |
+| High contrast | CSS variables for theming |
+| Focus indicators | Visible focus rings |
+
+---
+
+## Testing Contracts
+
+### Unit Tests (Jest)
+
+```javascript
+describe('TranslationToggle', () => {
+  it('shows Translate button when language is English');
+  it('shows toggle back button when language is Urdu');
+  it('displays loading spinner during translation');
+  it('renders translated content correctly');
+  it('handles error states gracefully');
+  it('persists language preference to localStorage');
+});
+```
+
+### Integration Tests
+
+```javascript
+describe('Translation API', () => {
+  it('successfully translates chapter content');
+  it('returns cached translation on second request');
+  it('clears cache on user request');
+  it('returns 401 for unauthenticated requests');
+});
+```
+
+### E2E Tests (Playwright)
+
+```javascript
+test('user can toggle chapter to Urdu and back', async ({ page }) => {
+  await page.goto('/docs/chapter-1-1');
+  await page.click('button:has-text("Translate to Urdu")');
+  await expect(page.locator('text:has("آر او ایس ٹو")')).toBeVisible();
+  await page.click('button:has-text("Show English")');
+  await expect(page.locator('text:has("ROS 2")')).toBeVisible();
+});
+```

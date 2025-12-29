@@ -2,6 +2,7 @@ import React from 'react';
 import MDXContent from '@theme-original/MDXContent';
 import { useLocation } from '@docusaurus/router';
 import PersonalizeButton from '@site/src/components/PersonalizeButton';
+import TranslationToggle from '@site/src/components/TranslationToggle';
 
 // Check if current page is a chapter (in docs folder, not index)
 function isChapterPage(pathname) {
@@ -25,15 +26,26 @@ function getChapterId(pathname) {
   return lastSegment.replace(/[/#].*$/, '');
 }
 
+// Extract chapter title from the page
+function getChapterTitle() {
+  const titleEl = document.querySelector('h1');
+  return titleEl ? titleEl.textContent : null;
+}
+
 export default function MDXContentWrapper(props) {
   const location = useLocation();
   const pathname = location.pathname;
 
   const showPersonalizeButton = isChapterPage(pathname);
-  const chapterId = showPersonalizeButton ? getChapterId(pathname) : null;
+  const showTranslationToggle = isChapterPage(pathname);
+  const chapterId = showTranslationToggle ? getChapterId(pathname) : null;
+  const chapterTitle = showTranslationToggle ? getChapterTitle() : null;
 
   return (
     <>
+      {showTranslationToggle && (
+        <TranslationToggle chapterId={chapterId} chapterTitle={chapterTitle} />
+      )}
       {showPersonalizeButton && (
         <PersonalizeButton chapterId={chapterId} />
       )}

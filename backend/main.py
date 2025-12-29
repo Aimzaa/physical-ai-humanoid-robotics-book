@@ -46,6 +46,8 @@ from src.api.auth import router as auth_router
 from src.api.profile import router as profile_router
 from src.api.personalization import router as personalization_router
 from src.api.chat import router as chat_router
+# Translation router commented out - using direct endpoint below instead
+# from src.api.translation import router as translation_router
 
 class Document(BaseModel):
     content: str
@@ -169,6 +171,7 @@ app.include_router(auth_router)
 app.include_router(profile_router)
 app.include_router(personalization_router)
 app.include_router(chat_router)
+# Translation router NOT included - using direct endpoint instead
 
 # ============================================================================
 # EXISTING RAG ROUTES (preserved for backward compatibility)
@@ -188,8 +191,173 @@ def health_check():
     return {
         "status": "healthy",
         "qdrant_connected": True,
-        "auth_enabled": True
+        "auth_enabled": True,
+        "translation_enabled": True
     }
+
+
+# =============================================================================
+# TRANSLATION ENDPOINTS (Using deep-translator)
+# =============================================================================
+
+from pydantic import BaseModel
+from typing import Optional
+from deep_translator import GoogleTranslator
+from concurrent.futures import ThreadPoolExecutor
+import re
+
+class TranslationRequest(BaseModel):
+    chapter_id: str
+    chapter_title: str
+    content: str
+
+class TranslationResponse(BaseModel):
+    success: bool
+    translated_content: Optional[str] = None
+    cached: bool = False
+    language: str = "ur"
+
+
+# Create translator instance
+to_urdu_translator = GoogleTranslator(source='auto', target='ur')
+
+# Thread pool for running sync translator in async context
+executor = ThreadPoolExecutor(max_workers=2)
+
+# API limit for translation
+MAX_CHARS = 3000  # Reduced for better reliability
+
+
+def clean_text_for_translation(text: str) -> str:
+    """Remove or protect code blocks, special characters from text."""
+    # Replace code blocks with placeholder
+    code_blocks = []
+    pattern = r'```[\s\S]*?```'
+
+    def replace_code(match):
+        code_blocks.append(match.group(0))
+        return f'__CODE_BLOCK_{len(code_blocks)-1}__'
+
+    cleaned = re.sub(pattern, replace_code, text)
+
+    # Also replace inline code
+    inline_codes = []
+    pattern2 = r'`[^`]+`'
+
+    def replace_inline(match):
+        inline_codes.append(match.group(0))
+        return f'__INLINE_CODE_{len(inline_codes)-1}__'
+
+    cleaned = re.sub(pattern2, replace_inline, cleaned)
+
+    return cleaned, code_blocks, inline_codes
+
+
+def restore_code_blocks(text: str, code_blocks: list, inline_codes: list) -> str:
+    """Restore code blocks and inline code after translation."""
+    for i, block in enumerate(code_blocks):
+        text = text.replace(f'__CODE_BLOCK_{i}__', block)
+
+    for i, code in enumerate(inline_codes):
+        text = text.replace(f'__INLINE_CODE_{i}__', code)
+
+    return text
+
+
+def translate_long_text_sync(text: str) -> str:
+    """Translate long text by splitting into chunks (sync version)."""
+    # First, protect code blocks
+    cleaned_text, code_blocks, inline_codes = clean_text_for_translation(text)
+
+    if len(cleaned_text) <= MAX_CHARS:
+        translated = to_urdu_translator.translate(cleaned_text)
+        return restore_code_blocks(translated, code_blocks, inline_codes)
+
+    # Split into chunks at paragraphs
+    paragraphs = cleaned_text.split('\n\n')
+    chunks = []
+    current_chunk = ""
+
+    for para in paragraphs:
+        # Skip empty paragraphs
+        para = para.strip()
+        if not para:
+            continue
+
+        if len(current_chunk) + len(para) + 2 <= MAX_CHARS:
+            current_chunk += para + "\n\n"
+        else:
+            if current_chunk.strip():
+                chunks.append(current_chunk.strip())
+
+            # If para is too big, truncate it
+            if len(para) > MAX_CHARS:
+                para = para[:MAX_CHARS - 100] + "..."
+
+            current_chunk = para + "\n\n"
+
+    if current_chunk.strip():
+        chunks.append(current_chunk.strip())
+
+    if not chunks:
+        # If no chunks, try translating a small part
+        return restore_code_blocks(
+            to_urdu_translator.translate(text[:MAX_CHARS] + "..."),
+            code_blocks, inline_codes
+        )
+
+    # Translate each chunk
+    translated_chunks = []
+    for i, chunk in enumerate(chunks):
+        try:
+            translated = to_urdu_translator.translate(chunk)
+            translated_chunks.append(translated)
+        except Exception as e:
+            print(f"Error translating chunk {i}: {e}")
+            translated_chunks.append(f"[Translation error in chunk {i+1}]")
+
+    translated = '\n\n'.join(translated_chunks)
+
+    return restore_code_blocks(translated, code_blocks, inline_codes)
+
+
+@app.post("/api/translate/{chapter_id}", response_model=TranslationResponse)
+async def translate_chapter_direct(chapter_id: str, request: TranslationRequest):
+    """
+    Translate chapter content to Urdu using deep-translator.
+    Handles long content and code blocks properly.
+    """
+    import asyncio
+
+    try:
+        content_len = len(request.content)
+        print(f"Translating chapter: {chapter_id} (length: {content_len} chars)")
+
+        # Run synchronous translation in thread pool
+        loop = asyncio.get_event_loop()
+        translated = await loop.run_in_executor(
+            executor,
+            translate_long_text_sync,
+            request.content
+        )
+
+        print(f"Translation complete for {chapter_id}, length: {len(translated)} chars")
+
+        return TranslationResponse(
+            success=True,
+            translated_content=translated,
+            cached=False,
+            language="ur",
+        )
+
+    except Exception as e:
+        error_msg = str(e)
+        print(f"Translation error: {error_msg}")
+        # Return a helpful error message
+        raise HTTPException(
+            status_code=500,
+            detail=f"Translation failed: {error_msg[:200]}... Content may be too long or contain unsupported characters."
+        )
 
 @app.post("/embeddings")
 async def add_embeddings(request: EmbeddingRequest):

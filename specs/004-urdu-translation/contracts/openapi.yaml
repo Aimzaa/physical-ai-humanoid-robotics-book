@@ -1,0 +1,312 @@
+openapi: 3.0.3
+info:
+  title: Urdu Translation API
+  description: API for translating chapter content to Urdu for authenticated users
+  version: 1.0.0
+  contact:
+    name: Physical AI Book Team
+    email: support@physicalaibook.com
+
+servers:
+  - url: http://localhost:8000
+    description: Development server
+  - url: https://api.physicalaibook.com
+    description: Production server
+
+tags:
+  - name: Translation
+    description: Chapter translation endpoints
+
+paths:
+  /api/translate/{chapter_id}:
+    post:
+      tags:
+        - Translation
+      summary: Translate chapter to Urdu
+      description: Translates the given chapter content to Urdu using LLM, with profile-adaptive translation
+      operationId: translateChapter
+      parameters:
+        - name: chapter_id
+          in: path
+          required: true
+          schema:
+            type: string
+            description: Chapter identifier (e.g., 'chapter-1-1-introduction-ros2')
+          example: chapter-1-1-introduction-ros2
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TranslationRequest'
+            example:
+              chapter_id: chapter-1-1-introduction-ros2
+              chapter_title: Introduction to ROS 2 Architecture
+              content: |
+                # Introduction to ROS 2 Architecture
+
+                ROS 2 (Robot Operating System 2) is a flexible framework...
+
+                ## Key Concepts
+                - **DDS**: Data Distribution Service
+                - **Nodes**: Processes that perform computation
+      responses:
+        '200':
+          description: Successful translation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TranslationResponse'
+              example:
+                success: true
+                translated_content: |
+                  # آر او ایس ٹو کی تعمیر کا تعارف
+
+                  آر او ایس ٹو (روبٹ آپریٹنگ سسٹم 2) ایک لچکدار چوasis ہے...
+                cached: false
+                ttl_seconds: 172800
+                language: ur
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Translation service error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      tags:
+        - Translation
+      summary: Clear cached translation
+      description: Removes the cached translation for a specific chapter
+      operationId: clearTranslation
+      parameters:
+        - name: chapter_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Cache cleared successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClearTranslationResponse'
+        '401':
+          description: Not authenticated
+
+  /api/translate/{chapter_id}/status:
+    get:
+      tags:
+        - Translation
+      summary: Check translation status
+      description: Returns whether a cached translation exists for the chapter
+      operationId: getTranslationStatus
+      parameters:
+        - name: chapter_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Translation status retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TranslationStatusResponse'
+        '401':
+          description: Not authenticated
+
+  /api/translate/preferences:
+    get:
+      tags:
+        - Translation
+      summary: Get translation preferences
+      description: Returns user's translation preference settings
+      operationId: getTranslationPreferences
+      responses:
+        '200':
+          description: Preferences retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TranslationPreferences'
+        '401':
+          description: Not authenticated
+
+    put:
+      tags:
+        - Translation
+      summary: Update translation preferences
+      description: Updates user's translation preference settings
+      operationId: updateTranslationPreferences
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TranslationPreferenceUpdate'
+      responses:
+        '200':
+          description: Preferences updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TranslationPreferences'
+        '400':
+          description: Invalid preference values
+        '401':
+          description: Not authenticated
+
+components:
+  schemas:
+    TranslationRequest:
+      type: object
+      required:
+        - chapter_id
+        - chapter_title
+        - content
+      properties:
+        chapter_id:
+          type: string
+          description: Unique chapter identifier
+          example: chapter-1-1-introduction-ros2
+        chapter_title:
+          type: string
+          description: Title of the chapter for translation context
+          example: Introduction to ROS 2 Architecture
+        content:
+          type: string
+          description: Markdown content to translate
+          example: "# Introduction\n\nROS 2 is..."
+
+    TranslationResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Whether translation was successful
+          example: true
+        translated_content:
+          type: string
+          description: Urdu translated markdown content
+          example: "# آر او ایس ٹو کا تعارف\n\nآر او ایس ٹو ایک..."
+        cached:
+          type: boolean
+          description: Whether the response was served from cache
+          example: false
+        ttl_seconds:
+          type: integer
+          description: Cache TTL in seconds
+          example: 172800
+        language:
+          type: string
+          enum:
+            - ur
+            - en
+          description: Current content language
+          example: ur
+
+    TranslationStatusResponse:
+      type: object
+      properties:
+        has_translation:
+          type: boolean
+          description: Whether cached translation exists
+          example: true
+        cached_at:
+          type: string
+          format: date-time
+          description: When the translation was cached (ISO8601)
+          nullable: true
+          example: "2025-12-28T10:30:00Z"
+        ttl_remaining:
+          type: integer
+          description: Seconds until cache expires
+          nullable: true
+          example: 150000
+        language:
+          type: string
+          enum:
+            - ur
+            - en
+          example: ur
+
+    TranslationPreferences:
+      type: object
+      properties:
+        auto_translate:
+          type: boolean
+          description: Automatically show Urdu content when visiting chapters
+          example: false
+        remember_preference:
+          type: boolean
+          description: Remember language preference per chapter
+          example: true
+        preferred_depth:
+          type: string
+          enum:
+            - Conceptual
+            - Practical
+            - Both
+          description: Preferred learning depth for translations
+          example: Both
+
+    TranslationPreferenceUpdate:
+      type: object
+      properties:
+        auto_translate:
+          type: boolean
+          description: Auto-show Urdu on chapter visit
+        remember_preference:
+          type: boolean
+          description: Persist language choice
+        preferred_depth:
+          type: string
+          enum:
+            - Conceptual
+            - Practical
+            - Both
+          description: Default learning depth for translation
+
+    ClearTranslationResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Translation cache cleared for chapter-1-1"
+
+    ErrorResponse:
+      type: object
+      properties:
+        detail:
+          type: string
+          description: Error message
+          example: "Translation failed: Service temporarily unavailable"
+        code:
+          type: string
+          description: Error code for programmatic handling
+          example: TRANSLATION_ERROR
+
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: session_id
+      description: HttpOnly session cookie for authentication

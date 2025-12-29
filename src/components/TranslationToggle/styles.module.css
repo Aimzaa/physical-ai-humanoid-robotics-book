@@ -1,0 +1,349 @@
+/* TranslationToggle Styles */
+.container {
+  margin: 1rem 0;
+  padding: 0;
+}
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.buttonRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+}
+
+.translateButton {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.translateButton:hover:not(:disabled) {
+  background: linear-gradient(135deg, #5a6fd6 0%, #6a4190 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.translateButton:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.toggleBackButton {
+  background: #f8fafc;
+  color: #1e293b;
+  border: 1px solid #e2e8f0;
+}
+
+.toggleBackButton:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+.clearCacheButton {
+  padding: 0.625rem 0.75rem;
+  background: #f8fafc;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
+}
+
+.clearCacheButton:hover {
+  background: #fee2e2;
+  color: #dc2626;
+  border-color: #fecaca;
+}
+
+/* Loading State */
+.loadingState {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  color: #64748b;
+  font-size: 0.875rem;
+}
+
+.spinner {
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid #e2e8f0;
+  border-top-color: #667eea;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Auth Prompt */
+.prompt {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  color: #475569;
+  flex-wrap: wrap;
+}
+
+.lockIcon {
+  font-size: 1rem;
+}
+
+.authLinks {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: auto;
+}
+
+.signInLink,
+.signUpLink {
+  font-weight: 500;
+  text-decoration: none;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  transition: background 0.2s;
+}
+
+.signInLink {
+  color: #667eea;
+}
+
+.signInLink:hover {
+  background: #eff6ff;
+}
+
+.signUpLink {
+  background: #667eea;
+  color: white;
+  padding: 0.375rem 0.75rem;
+}
+
+.signUpLink:hover {
+  background: #5a6fd6;
+}
+
+.authDivider {
+  color: #94a3b8;
+  font-size: 0.75rem;
+}
+
+/* Error State */
+.errorNotice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 0.5rem;
+  color: #dc2626;
+  font-size: 0.875rem;
+}
+
+.retryButton {
+  padding: 0.375rem 0.75rem;
+  background: #dc2626;
+  color: white;
+  border: none;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.retryButton:hover {
+  background: #b91c1c;
+}
+
+/* Translated Content Section */
+.translatedSection {
+  margin-top: 1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  background: white;
+}
+
+.translatedHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border-bottom: 1px solid #fcd34d;
+}
+
+.translatedIcon {
+  font-size: 1.25rem;
+}
+
+.translatedTitle {
+  font-weight: 600;
+  color: #92400e;
+  font-size: 1rem;
+}
+
+.translatedBadge {
+  margin-left: auto;
+  padding: 0.25rem 0.5rem;
+  background: #f59e0b;
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border-radius: 0.25rem;
+}
+
+.translatedContent {
+  padding: 1.5rem;
+  font-size: 1.125rem;
+  line-height: 2;
+  min-height: 200px;
+}
+
+.translatedContent h2,
+.translatedContent h3,
+.translatedContent h4 {
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  color: #1e293b;
+  font-weight: 600;
+}
+
+.translatedContent p {
+  margin-bottom: 1rem;
+  color: #334155;
+}
+
+.translatedContent ul,
+.translatedContent ol {
+  margin: 1rem 0;
+  padding-right: 1.5rem;
+}
+
+.translatedContent li {
+  margin-bottom: 0.5rem;
+  color: #475569;
+}
+
+.translatedContent pre {
+  background: #1e293b;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  margin: 1rem 0;
+}
+
+.translatedContent code {
+  font-family: 'Fira Code', 'Monaco', monospace;
+  font-size: 0.875rem;
+}
+
+.translatedContent a {
+  color: #667eea;
+  text-decoration: none;
+}
+
+.translatedContent a:hover {
+  text-decoration: underline;
+}
+
+.translatedFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+}
+
+.footerNote {
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+.footerToggle {
+  padding: 0.5rem 1rem;
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.footerToggle:hover {
+  background: #e2e8f0;
+}
+
+/* Icons */
+.translateIcon {
+  font-size: 1.125rem;
+}
+
+.backIcon {
+  font-size: 1rem;
+}
+
+.clearIcon {
+  font-size: 0.875rem;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .buttonRow {
+    flex-wrap: wrap;
+  }
+
+  .prompt {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .authLinks {
+    margin-left: 0;
+    margin-top: 0.5rem;
+  }
+
+  .translatedHeader {
+    flex-wrap: wrap;
+  }
+
+  .translatedBadge {
+    margin-left: 0;
+    margin-top: 0.25rem;
+  }
+
+  .translatedFooter {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
