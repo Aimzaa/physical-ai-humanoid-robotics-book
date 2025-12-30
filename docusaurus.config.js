@@ -12,7 +12,7 @@ const config = {
   url: 'https://aimzaa.github.io',
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub Pages, this is usually /<projectName>/
-  baseUrl: '/physical-ai-humanoid-robotics-book/',
+  baseUrl: '/',
 
   // GitHub pages deployment config.
   organizationName: 'Aimzaa', // Usually your GitHub org/user name.
