@@ -115,14 +115,24 @@ uvicorn main:app --reload --port 8000
 
 ## Deployment
 
+### Hugging Face Spaces (Recommended)
+
+1. Create a new Space at https://huggingface.co/new-space
+2. Select **Docker** as the SDK
+3. Link your GitHub repository
+4. Set Dockerfile path to: `backend/Dockerfile`
+5. Enable AutoBuild
+
+The API will be available at: `https://your-username-space-name.hf.space`
+
 ### Local Development
 1. Run Qdrant locally: `docker run -p 6333:6333 -p 6334:6334 qdrant/qdrant`
 2. Load embeddings: `python load_embeddings.py`
-3. Start backend: `uvicorn main:app --port 8000`
+3. Start backend: `uvicorn main:app --port 7860`
 
 ### Production Deployment
 1. Deploy Qdrant to a cloud provider or use Qdrant Cloud
-2. Deploy the FastAPI app to a cloud platform (Heroku, AWS, GCP, etc.)
+2. Deploy the FastAPI app to Hugging Face Spaces or any cloud platform
 3. Set environment variables with production configuration
 4. Run the content loading script once to populate the vector store
 
