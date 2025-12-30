@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import MDXContent from '@theme-original/MDXContent';
 import { useLocation } from '@docusaurus/router';
+import BrowserOnly from '@docusaurus/BrowserOnly';
 import PersonalizeButton from '@site/src/components/PersonalizeButton';
 import TranslationToggle from '@site/src/components/TranslationToggle';
 
@@ -26,10 +27,19 @@ function getChapterId(pathname) {
   return lastSegment.replace(/[/#].*$/, '');
 }
 
-// Extract chapter title from the page
-function getChapterTitle() {
-  const titleEl = document.querySelector('h1');
-  return titleEl ? titleEl.textContent : null;
+// Client-side only component for translation toggle
+function TranslationToggleWrapper({ chapterId }) {
+  const [chapterTitle, setChapterTitle] = useState(null);
+
+  useEffect(() => {
+    // Get chapter title from DOM (only runs on client)
+    const titleEl = document.querySelector('h1');
+    if (titleEl) {
+      setChapterTitle(titleEl.textContent);
+    }
+  }, []);
+
+  return <TranslationToggle chapterId={chapterId} chapterTitle={chapterTitle} />;
 }
 
 export default function MDXContentWrapper(props) {
@@ -39,12 +49,13 @@ export default function MDXContentWrapper(props) {
   const showPersonalizeButton = isChapterPage(pathname);
   const showTranslationToggle = isChapterPage(pathname);
   const chapterId = showTranslationToggle ? getChapterId(pathname) : null;
-  const chapterTitle = showTranslationToggle ? getChapterTitle() : null;
 
   return (
     <>
       {showTranslationToggle && (
-        <TranslationToggle chapterId={chapterId} chapterTitle={chapterTitle} />
+        <BrowserOnly fallback={null}>
+          {() => <TranslationToggleWrapper chapterId={chapterId} />}
+        </BrowserOnly>
       )}
       {showPersonalizeButton && (
         <PersonalizeButton chapterId={chapterId} />

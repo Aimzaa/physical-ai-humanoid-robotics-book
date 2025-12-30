@@ -1,0 +1,161 @@
+/* Homepage Styles */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-lg);
+}
+
+/* Modules Section */
+.modules {
+  padding: var(--spacing-3xl) 0;
+  background: var(--color-background);
+}
+
+.sectionHeader {
+  text-align: center;
+  margin-bottom: var(--spacing-2xl);
+}
+
+.sectionTitle {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: 0 0 var(--spacing-sm);
+}
+
+.sectionSubtitle {
+  font-size: 1.125rem;
+  color: var(--color-text-secondary);
+  margin: 0;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.moduleGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-lg);
+}
+
+/* Capstone Section */
+.capstone {
+  padding: var(--spacing-3xl) 0;
+  background: linear-gradient(135deg, var(--ifm-color-primary-darkest) 0%, var(--ifm-color-primary-dark) 100%);
+  color: white;
+}
+
+.capstoneContent {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2xl);
+}
+
+.capstoneText {
+  flex: 1;
+}
+
+.capstoneLabel {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--radius-full);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: var(--spacing-md);
+}
+
+.capstoneTitle {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0 0 var(--spacing-md);
+  line-height: 1.2;
+}
+
+.capstoneDescription {
+  font-size: 1.125rem;
+  opacity: 0.9;
+  margin: 0 0 var(--spacing-lg);
+  line-height: 1.6;
+}
+
+.capstoneButton {
+  background: white !important;
+  color: var(--ifm-color-primary-dark) !important;
+  border: none !important;
+  font-weight: 600;
+}
+
+.capstoneButton:hover {
+  background: rgba(255, 255, 255, 0.9) !important;
+}
+
+.capstoneVisual {
+  flex-shrink: 0;
+}
+
+.capstoneIcon {
+  font-size: 8rem;
+  line-height: 1;
+  opacity: 0.9;
+}
+
+/* Responsive */
+@media (max-width: 996px) {
+  .moduleGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .capstoneContent {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .capstoneVisual {
+    order: -1;
+  }
+
+  .capstoneIcon {
+    font-size: 5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .moduleGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .sectionTitle {
+    font-size: 1.5rem;
+  }
+
+  .capstoneTitle {
+    font-size: 1.5rem;
+  }
+
+  .capstoneDescription {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .modules,
+  .capstone {
+    padding: var(--spacing-2xl) 0;
+  }
+
+  .container {
+    padding: 0 var(--spacing-md);
+  }
+}
+
+/* Dark mode */
+html[data-theme='dark'] .modules {
+  background: var(--color-background);
+}
+
+html[data-theme='dark'] .sectionTitle {
+  color: var(--color-text-primary);
+}

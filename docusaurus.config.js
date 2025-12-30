@@ -88,30 +88,29 @@ const config = {
         style: 'dark',
         links: [
           {
-            title: 'Docs',
+            title: 'Learn',
             items: [
               {
-                label: 'Book',
-                to: '/docs/intro',
+                label: 'Introduction',
+                to: '/docs/',
+              },
+              {
+                label: 'Module 1: ROS 2',
+                to: '/docs/module-1-robotic-nervous-system/chapter-1-1-introduction-ros2',
+              },
+              {
+                label: 'Capstone Project',
+                to: '/docs/capstone-project/autonomous-humanoid-implementation',
               },
             ],
           },
           {
-            title: 'Community',
+            title: 'Resources',
             items: [
               {
-                label: 'Stack Overflow',
-                href: 'https://stackoverflow.com/questions/tagged/docusaurus',
+                label: 'References',
+                to: '/docs/references',
               },
-              {
-                label: 'Discord',
-                href: 'https://discordapp.com/invite/docusaurus',
-              },
-            ],
-          },
-          {
-            title: 'More',
-            items: [
               {
                 label: 'GitHub',
                 href: 'https://github.com/your-org/physical-ai-humanoid-robotics-book',
