@@ -1,4 +1,24 @@
 /* Homepage Styles */
+
+/* Hide duplicate page title on homepage */
+.homepage-wrapper .row .col {
+  padding-top: 0 !important;
+}
+
+.homepage-wrapper .theme-doc-header {
+  display: none !important;
+}
+
+.homepage-wrapper .theme-doc-title {
+  display: none !important;
+}
+
+/* Clean up homepage spacing */
+.homepage-wrapper main {
+  padding-top: 0 !important;
+  margin-top: 0 !important;
+}
+
 .container {
   max-width: 1200px;
   margin: 0 auto;

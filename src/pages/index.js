@@ -102,8 +102,10 @@ export default function Home() {
 
   return (
     <Layout
-      title={siteConfig.title}
+      title={null}
       description={siteConfig.tagline}
+      noFooter
+      wrapperClassName="homepage-wrapper"
     >
       <HomepageHero />
       <main>
