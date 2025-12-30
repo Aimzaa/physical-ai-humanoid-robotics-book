@@ -61,7 +61,7 @@ const config = {
       // Replace with your project's social card
       image: 'img/docusaurus-social-card.jpg',
       navbar: {
-        // title removed to avoid duplicate with homepage hero
+        title: 'Physical AI & Humanoid Robotics Book',
         logo: {
           alt: 'Physical AI & Humanoid Robotics Book',
           src: 'img/logo.svg',
