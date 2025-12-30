@@ -1,0 +1,39 @@
+# Hugging Face Spaces Configuration
+# This file tells HF how to build and run your Space
+
+spec: 1
+name: physical-ai-backend
+title: Physical AI Backend API
+description: FastAPI backend for Physical AI & Humanoid Robotics Book with RAG chatbot
+sdk: docker
+# Docker image will be built from Dockerfile in backend/ directory
+dockerfile: backend/Dockerfile
+# Port configuration (HF uses 7860 by default)
+port: 7860
+# Environment variables to set in Space settings
+env:
+  - name: QDRANT_URL
+    description: Qdrant Cloud URL for vector database
+    required: true
+  - name: QDRANT_API_KEY
+    description: Qdrant Cloud API Key
+    required: true
+  - name: OPENROUTER_API_KEY
+    description: OpenRouter API Key for LLM responses
+    required: false
+# Hardware options
+hardware: cpu
+# Licensing
+license: mit
+# Tags for discovery
+tags:
+  - fastapi
+  - python
+  - api
+  - rag
+  - chatbot
+  - translation
+# Space visibility
+visibility: public
+# Pinned status
+pinned: false
