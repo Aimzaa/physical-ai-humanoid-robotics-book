@@ -9,13 +9,13 @@ const config = {
   favicon: 'img/favicon.ico',
 
   // Set the production url of your site here
-  url: 'https://your-org.github.io',
+  url: 'https://aimzaa.github.io',
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub Pages, this is usually /<projectName>/
-  baseUrl: '/physical-ai-humanoid-robotics-book',
+  baseUrl: '/physical-ai-humanoid-robotics-book/',
 
   // GitHub pages deployment config.
-  organizationName: 'your-org', // Usually your GitHub org/user name.
+  organizationName: 'Aimzaa', // Usually your GitHub org/user name.
   projectName: 'physical-ai-humanoid-robotics-book', // Usually your repo name.
   deploymentBranch: 'gh-pages', // Branch that GitHub Pages will deploy from.
 
@@ -40,7 +40,7 @@ const config = {
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
           editUrl:
-            'https://github.com/your-org/physical-ai-humanoid-robotics-book/tree/main/',
+            'https://github.com/Aimzaa/physical-ai-humanoid-robotics-book/tree/main/',
         },
         blog: false, // Disable blog plugin as we're creating a book, not a blog
         theme: {
@@ -61,7 +61,7 @@ const config = {
       // Replace with your project's social card
       image: 'img/docusaurus-social-card.jpg',
       navbar: {
-        title: 'Physical AI & Humanoid Robotics',
+        // title removed to avoid duplicate with homepage hero
         logo: {
           alt: 'Physical AI & Humanoid Robotics Book',
           src: 'img/logo.svg',
@@ -74,7 +74,7 @@ const config = {
             label: 'Book',
           },
           {
-            href: 'https://github.com/your-org/physical-ai-humanoid-robotics-book',
+            href: 'https://github.com/Aimzaa/physical-ai-humanoid-robotics-book',
             label: 'GitHub',
             position: 'right',
           },
@@ -113,7 +113,7 @@ const config = {
               },
               {
                 label: 'GitHub',
-                href: 'https://github.com/your-org/physical-ai-humanoid-robotics-book',
+                href: 'https://github.com/Aimzaa/physical-ai-humanoid-robotics-book',
               },
             ],
           },
