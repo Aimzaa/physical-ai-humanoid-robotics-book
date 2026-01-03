@@ -1,0 +1,24 @@
+# Core FastAPI
+fastapi>=0.109.0
+uvicorn[standard]>=0.27.0
+python-multipart>=0.0.6
+
+# Configuration
+pydantic>=2.5.0
+
+# Authentication
+bcrypt>=4.1.0
+pyjwt>=2.8.0
+
+# Database
+sqlalchemy>=2.0.0
+
+# RAG (existing)
+qdrant-client>=1.9.0
+sentence-transformers>=3.0.0
+openai>=1.14.0
+requests>=2.31.0
+numpy>=1.24.0
+
+# Translation
+deep-translator>=1.11.0
